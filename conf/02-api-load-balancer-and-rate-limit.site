@@ -1,0 +1,17 @@
+upstream backend {
+    server 10.9.8.1:9001;
+    server 10.9.8.1:9002;
+}
+
+# 1MB = 16,000 IP
+limit_req_zone $binary_remote_addr zone=mylimit:1m rate=1r/s;
+
+server {
+    listen 80;
+    server_name api.local;
+
+    location /v1 {
+        limit_req zone=mylimit;
+        proxy_pass http://backend/;
+    }
+}

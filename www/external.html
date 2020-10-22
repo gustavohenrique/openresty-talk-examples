@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>External content</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, width=device-width, viewport-fit=cover">
+  <style type="text/css">
+    body {
+      font-family: Helvetica, sans-serif;
+    }
+  </style>
+  <script>
+    function getItem() {
+      const input = document.querySelector('input');
+      const p = document.querySelector('p');
+      const key = input.value;
+      console.log('key=', key)
+      if (!key) {
+        return;
+      }
+      const value = localStorage.getItem(key);
+      p.innerText = value;
+    }
+  </script>
+</head>
+<body>
+  <h2>iframe</h2>
+  <h3>localStorage</h3>
+  <input type="text" placeholder="Key" />
+  <button onclick="getItem()">Get value</button>
+  <p></p>
+</body>
+</html>

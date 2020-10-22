@@ -1,0 +1,51 @@
+upstream nodejs {
+    server 10.9.8.1:9001;
+}
+
+upstream python {
+    server 10.9.8.1:9002;
+}
+
+upstream golang {
+    server 10.9.8.1:9003;
+}
+
+server {
+    listen 80;
+    server_name lua.local;
+    root /home/ubuntu/www;
+    index index.html;
+    set $lua_root "/home/ubuntu/lua";
+    set $jwt_secret "secret";
+    set $jwt_duration_secs 30;
+    set $jwt_issuer "openresty_talk";
+
+    location = / {
+        content_by_lua_block {
+            ngx.say("Hello World!!! By Lua")
+        }
+    }
+
+    location = /ab {
+        content_by_lua_block {
+            local now = ngx.utctime()
+            local seconds = string.sub(now, -1)
+            if seconds == "0" or seconds == "5" then
+                return ngx.say("<h1 style=\"color:red\">Version B: " .. seconds .. "s</h1>") 
+            end
+            ngx.say("<h1 style=\"color:blue\">Version A: " .. seconds .. "s</h1>") 
+        }
+    }
+
+    location = /login {
+        limit_except POST { deny all; }
+        content_by_lua_file $lua_root/login.lua;
+    }
+
+    location ~ /api/(?<service>\w+) {
+        set $user_id "";
+        access_by_lua_file $lua_root/verify.lua;
+        proxy_set_header   user_id $user_id;
+        proxy_pass         http://$service/;
+    }
+}

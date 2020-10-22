@@ -1,0 +1,27 @@
+server {
+    listen 80;
+    server_name blog.local;
+    root /home/ubuntu/www/blog;
+    index index.html;
+
+    location /posts/iptables {
+        return 301 https://gustavohenrique.net/2008/12/gateway-linux-com-2-links-utilizando-iptables-iproute;
+    }
+
+    location ~* /posts/pt-br/([a-z0-9]+((-)+[a-z0-9]+))$ {
+        ssi on;
+        set $article "$1.html";
+        set $lang "pt-br";
+        try_files /posts/index.html /post/index.html;
+    }
+
+    location ~* /posts/([a-z0-9]+((-)+[a-z0-9]+))$ {
+        ssi on;
+        set $article "$1.html";
+        try_files /posts/index.html /post/index.html;
+    }
+
+    location ~* ^(/images)/(?<year>\w+)/(?<filename>.*)\.(?<ext>jpg|jpeg|png|svg)$ {
+        try_files /assets/$filename.$ext /assets/notfound.jpg;
+    }
+}
